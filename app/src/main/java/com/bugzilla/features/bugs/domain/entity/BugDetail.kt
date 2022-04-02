@@ -6,5 +6,7 @@ data class BugDetail(
 
 data class Bug(
     val id: String,
-    val summary: String
+    val summary: String,
+    val alias: String,
+    var isMoreInformationMode: Boolean = false
 )

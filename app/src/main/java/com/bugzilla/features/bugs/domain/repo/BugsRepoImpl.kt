@@ -18,7 +18,8 @@ class BugsRepoImpl(
         bugs = this.bugs?.map {
             Bug(
                 id = it.id.toString(),
-                summary = it.summary.orEmpty()
+                summary = it.summary.orEmpty(),
+                alias = it.alias.orEmpty()
             )
         }.orEmpty()
     )

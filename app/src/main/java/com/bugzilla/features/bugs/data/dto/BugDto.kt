@@ -6,6 +6,7 @@ data class BugDto(
     @SerializedName("id")
     val id: Int? = null,
     @SerializedName("summary")
-    val summary: String? = null
-
+    val summary: String? = null,
+    @SerializedName("alias")
+    val alias: String? = null
 )

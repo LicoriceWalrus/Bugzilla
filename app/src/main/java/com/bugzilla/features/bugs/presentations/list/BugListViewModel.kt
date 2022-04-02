@@ -1,6 +1,7 @@
 package com.bugzilla.features.bugs.presentations.list
 
 import androidx.lifecycle.ViewModel
+import com.bugzilla.features.bugs.domain.entity.Bug
 import com.bugzilla.features.bugs.domain.interactor.BugsInteractor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -16,6 +17,17 @@ class BugListViewModel(
     private val screenState: MutableStateFlow<BugListScreenState> = MutableStateFlow(state)
 
     fun screenState(): StateFlow<BugListScreenState> = screenState
+
+    fun changeInfoVisibility(bug: Bug) {
+        state = state.copy(bugs = state.bugs.map {
+            if (it.id == bug.id) {
+                it.copy(isMoreInformationMode = it.isMoreInformationMode.not())
+            } else {
+                it
+            }
+        })
+        updateUi()
+    }
 
     private fun getBugInfo(id: Int) {
         state = state.copy(loading = true)
