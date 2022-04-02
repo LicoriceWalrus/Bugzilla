@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Bugzilla</string>
+
+    <string name="id_title">ID %s</string>
 </resources>
