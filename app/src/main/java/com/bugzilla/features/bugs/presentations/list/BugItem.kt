@@ -54,7 +54,7 @@ fun BugItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = bug.alias.uppercase(),
+                    text = bug.creationTime,
                     style = MaterialTheme.typography.subtitle1,
                     maxLines = if (bug.isMoreInformationMode) Int.MAX_VALUE else 1,
                     overflow = TextOverflow.Ellipsis
@@ -107,7 +107,7 @@ private fun BugItemPreview() {
             isMoreInformationMode = true,
             id = "35",
             summary = "Descriptions",
-            alias = "name",
+            creationTime = "1.10.1990",
             creator = "Vasiliy from Leningrad",
             status = "Open",
             severity = "Hot"

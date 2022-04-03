@@ -8,8 +8,8 @@ data class BugDto(
     val id: Int? = null,
     @SerializedName("summary")
     val summary: String? = null,
-    @SerializedName("alias")
-    val alias: String? = null,
+    @SerializedName("creation_time")
+    val creationTime: Date? = null,
     @SerializedName("creator")
     val creator: String? = null,
     @SerializedName("status")

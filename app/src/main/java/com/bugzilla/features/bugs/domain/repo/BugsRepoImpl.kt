@@ -5,6 +5,8 @@ import com.bugzilla.features.bugs.data.dto.BugDetailDto
 import com.bugzilla.features.bugs.domain.entity.Bug
 import com.bugzilla.features.bugs.domain.entity.BugDetail
 import io.reactivex.rxjava3.core.Single
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BugsRepoImpl(
     private val api: BugsApi
@@ -19,7 +21,12 @@ class BugsRepoImpl(
             Bug(
                 id = it.id.toString(),
                 summary = it.summary.orEmpty(),
-                alias = it.alias.orEmpty(),
+                creationTime = it.creationTime?.let { date ->
+                    SimpleDateFormat(
+                        "yyyy-MM-dd",
+                        Locale.getDefault()
+                    ).format(date).toString()
+                } ?: "",
                 creator = it.creator.orEmpty(),
                 severity = it.severity.orEmpty(),
                 status = it.status.orEmpty()

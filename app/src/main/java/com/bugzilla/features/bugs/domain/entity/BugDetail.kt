@@ -9,7 +9,7 @@ data class BugDetail(
 data class Bug(
     val id: String,
     val summary: String,
-    val alias: String,
+    val creationTime: String,
     val creator: String,
     val status: String,
     val severity: String,

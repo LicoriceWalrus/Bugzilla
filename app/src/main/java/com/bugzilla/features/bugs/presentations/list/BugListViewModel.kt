@@ -2,6 +2,7 @@ package com.bugzilla.features.bugs.presentations.list
 
 import androidx.lifecycle.ViewModel
 import com.bugzilla.features.bugs.domain.entity.Bug
+import com.bugzilla.features.bugs.domain.entity.FilterType
 import com.bugzilla.features.bugs.domain.interactor.BugsInteractor
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -31,6 +32,11 @@ class BugListViewModel(
 
     fun onQueryChanged(query: String) {
         state = state.copy(query = query)
+        updateUi()
+    }
+
+    fun filterTypeChanged(type: FilterType) {
+        state = state.copy(filterType = type)
         updateUi()
     }
 

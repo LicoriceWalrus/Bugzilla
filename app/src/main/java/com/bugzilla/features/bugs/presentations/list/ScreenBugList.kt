@@ -7,10 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -22,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bugzilla.R
 import com.bugzilla.features.bugs.domain.entity.Bug
+import com.bugzilla.features.bugs.domain.entity.FilterType
+import com.bugzilla.sources.components.BugToolbar
 import com.bugzilla.sources.components.LoadingBox
 import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.getViewModel
@@ -34,7 +35,8 @@ fun ScreenBugList(
         state = vm.screenState().collectAsState(),
         onBugClick = vm::changeInfoVisibility,
         onQueryChanged = vm::onQueryChanged,
-        searchBugs = vm::searchBugs
+        searchBugs = vm::searchBugs,
+        filterTypeChanged = vm::filterTypeChanged
     )
 }
 
@@ -43,20 +45,86 @@ private fun BugList(
     state: State<BugListScreenState>,
     onBugClick: (Bug) -> Unit,
     onQueryChanged: (String) -> Unit,
-    searchBugs: () -> Unit
+    searchBugs: () -> Unit,
+    filterTypeChanged: (FilterType) -> Unit
 ) {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
     LoadingBox(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
         loading = state.value.loading,
     ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-        ) {
+        Column {
+            BugToolbar(
+                title = stringResource(id = R.string.search_bugs_toolbar_title),
+                actions = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_filter),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .clickable {
+                                expanded = !expanded
+                            }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    filterTypeChanged(FilterType.ID)
+                                    expanded = !expanded
+                                },
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .align(CenterVertically),
+                                text = stringResource(id = R.string.by_id_filter)
+
+                            )
+                            RadioButton(
+                                selected = state.value.filterType == FilterType.ID,
+                                onClick = {
+                                    filterTypeChanged(FilterType.ID)
+                                    expanded = !expanded
+                                })
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    filterTypeChanged(FilterType.DATE)
+                                    expanded = !expanded
+                                },
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.by_date_filter),
+                                modifier = Modifier
+                                    .padding(start = 12.dp)
+                                    .align(CenterVertically)
+                            )
+                            RadioButton(
+                                selected = state.value.filterType == FilterType.DATE,
+                                onClick = {
+                                    filterTypeChanged(FilterType.DATE)
+                                    expanded = !expanded
+                                })
+                        }
+                    }
+                }
+            )
             Box(
                 modifier = Modifier
+                    .padding(horizontal = 8.dp)
                     .weight(1f)
             ) {
                 state.value.bugs.let {
@@ -76,7 +144,12 @@ private fun BugList(
                         LazyColumn(
                             contentPadding = PaddingValues(top = 8.dp)
                         ) {
-                            val bugs = state.value.bugs
+                            val bugs = state.value.bugs.sortedBy { bug ->
+                                when (state.value.filterType) {
+                                    FilterType.ID -> bug.id
+                                    else -> bug.creationTime
+                                }
+                            }
                             items(
                                 count = bugs.size,
                                 key = { position: Int -> bugs[position].id },
@@ -92,7 +165,7 @@ private fun BugList(
             TextField(
                 singleLine = true,
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
+                    .padding(8.dp)
                     .fillMaxWidth(),
                 value = state.value.query ?: "",
                 onValueChange = onQueryChanged,
@@ -136,7 +209,8 @@ private fun EmptyBugListPreview() {
         ),
         onBugClick = {},
         onQueryChanged = {},
-        searchBugs = {}
+        searchBugs = {},
+        filterTypeChanged = {}
     )
 }
 
@@ -150,16 +224,17 @@ private fun BugListPreview() {
                     Bug(
                         id = "65",
                         summary = "Краткое описание",
-                        alias = "Name",
-                        creator ="Vasiliy from Leningrad",
-                        status ="Open",
-                        severity ="Hot"
+                        creationTime = "1.10.1990",
+                        creator = "Vasiliy from Leningrad",
+                        status = "Open",
+                        severity = "Hot"
                     )
                 )
             )
         ),
         onBugClick = {},
         onQueryChanged = {},
-        searchBugs = {}
+        searchBugs = {},
+        filterTypeChanged = {}
     )
 }
