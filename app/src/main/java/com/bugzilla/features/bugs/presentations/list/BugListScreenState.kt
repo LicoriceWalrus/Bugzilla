@@ -8,5 +8,6 @@ data class BugListScreenState(
     val query: String? = null,
     val bugs: List<Bug> = emptyList(),
     val filterType: FilterType = FilterType.ID,
+    val isSearchById: Boolean,
     val message: String? = ""
 )

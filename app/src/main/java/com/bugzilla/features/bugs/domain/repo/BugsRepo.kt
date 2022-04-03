@@ -5,4 +5,6 @@ import io.reactivex.rxjava3.core.Single
 
 interface BugsRepo {
     fun searchBugs(query: String): Single<BugDetail>
+
+    fun searchBugById(query: String): Single<BugDetail>
 }

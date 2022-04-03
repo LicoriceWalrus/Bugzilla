@@ -16,6 +16,11 @@ class BugsRepoImpl(
             it.mapToEntity()
         }
 
+    override fun searchBugById(query: String): Single<BugDetail> =
+        api.searchBugById(query).map {
+            it.mapToEntity()
+        }
+
     private fun BugDetailDto.mapToEntity() = BugDetail(
         bugs = this.bugs?.map {
             Bug(

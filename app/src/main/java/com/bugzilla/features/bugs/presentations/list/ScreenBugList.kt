@@ -8,7 +8,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,14 +29,15 @@ import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun ScreenBugList(
-    vm: BugListViewModel = getViewModel()
+    vm: BugListViewModel = getViewModel(),
 ) {
     BugList(
         state = vm.screenState().collectAsState(),
         onBugClick = vm::changeInfoVisibility,
         onQueryChanged = vm::onQueryChanged,
         searchBugs = vm::searchBugs,
-        filterTypeChanged = vm::filterTypeChanged
+        filterTypeChanged = vm::filterTypeChanged,
+        changeSearchMethod = vm::changeSearchMethod
     )
 }
 
@@ -46,7 +47,8 @@ private fun BugList(
     onBugClick: (Bug) -> Unit,
     onQueryChanged: (String) -> Unit,
     searchBugs: () -> Unit,
-    filterTypeChanged: (FilterType) -> Unit
+    filterTypeChanged: (FilterType) -> Unit,
+    changeSearchMethod: () -> Unit
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -74,6 +76,33 @@ private fun BugList(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
                     ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    changeSearchMethod()
+                                },
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .align(CenterVertically),
+                                text = stringResource(id = R.string.search_by_id)
+                            )
+                            Checkbox(
+                                checked = state.value.isSearchById,
+                                onCheckedChange = {
+                                    changeSearchMethod()
+                                })
+                        }
+                        Divider(
+                            color = Color.LightGray,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 24.dp, top = 8.dp, end = 8.dp),
+                            thickness = 1.dp
+                        )
                         Row(
                             modifier = Modifier
                                 .padding(start = 12.dp)
@@ -134,7 +163,7 @@ private fun BugList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(30.dp)
-                                .align(Center),
+                                .align(Alignment.Center),
                             text = state.value.message
                                 ?: stringResource(id = R.string.upload_bugs_empty),
                             color = Color.Gray,
@@ -170,24 +199,40 @@ private fun BugList(
                 value = state.value.query ?: "",
                 onValueChange = onQueryChanged,
                 label = {
-                    Text(text = stringResource(id = R.string.bug_search_hint))
+                    Text(
+                        text = stringResource(
+                            id = if (state.value.isSearchById)
+                                R.string.bug_search_by_id_hint
+                            else R.string.bug_search_hint
+                        )
+                    )
                 },
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        searchBugs()
+                        state.value.query?.let {
+                            if (it.isNotBlank()) {
+                                searchBugs()
+                                onQueryChanged("")
+                            }
+                        }
                     }
                 ),
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = if (state.value.isSearchById) KeyboardType.Number else KeyboardType.Text,
                     imeAction = ImeAction.Done
                 ),
                 trailingIcon = {
                     Icon(
                         modifier = Modifier.clickable {
-                            searchBugs()
+                            state.value.query?.let {
+                                if (it.isNotBlank()) {
+                                    searchBugs()
+                                    onQueryChanged("")
+                                }
+                            }
                         },
                         painter = painterResource(id = R.drawable.ic_search),
                         contentDescription = null
@@ -204,13 +249,15 @@ private fun EmptyBugListPreview() {
     BugList(
         state = flowOf<BugListScreenState>().collectAsState(
             initial = BugListScreenState(
-                bugs = emptyList()
+                bugs = emptyList(),
+                isSearchById = false
             )
         ),
         onBugClick = {},
         onQueryChanged = {},
         searchBugs = {},
-        filterTypeChanged = {}
+        filterTypeChanged = {},
+        changeSearchMethod = {}
     )
 }
 
@@ -229,12 +276,14 @@ private fun BugListPreview() {
                         status = "Open",
                         severity = "Hot"
                     )
-                )
+                ),
+                isSearchById = false
             )
         ),
         onBugClick = {},
         onQueryChanged = {},
         searchBugs = {},
-        filterTypeChanged = {}
+        filterTypeChanged = {},
+        changeSearchMethod = {}
     )
 }

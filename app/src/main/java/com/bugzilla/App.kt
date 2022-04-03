@@ -4,6 +4,7 @@ import android.app.Application
 import com.bugzilla.features.bugs.bugsModule
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -14,8 +15,8 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-
         startKoin {
+            androidContext(this@App)
             koin.loadModules(
                 listOf(
                     network, bugsModule

@@ -4,11 +4,13 @@
     <string name="search_bugs_toolbar_title">Search bugs</string>
     <string name="id_title">ID %s</string>
     <string name="bug_search_hint">Enter query</string>
+    <string name="bug_search_by_id_hint">Enter bug ID</string>
     <string name="creator_title">Creator: </string>
     <string name="severity_title">Severity:</string>
     <string name="status_title">Status:</string>
     <string name="upload_bugs_empty">No bugs found</string>
-    <string name="by_id_filter">by ID</string>
-    <string name="by_date_filter">by DATE</string>
+    <string name="search_by_id">Search by ID</string>
+    <string name="by_id_filter">Sort by ID</string>
+    <string name="by_date_filter">Sort by DATE</string>
 
 </resources>

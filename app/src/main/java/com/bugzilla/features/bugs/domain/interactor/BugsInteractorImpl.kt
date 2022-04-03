@@ -7,6 +7,10 @@ import io.reactivex.rxjava3.core.Single
 class BugsInteractorImpl(
     private val repo: BugsRepo
 ) : BugsInteractor {
-    override fun searchBugs(query: String): Single<BugDetail> =
-        repo.searchBugs(query)
+    override fun searchBugs(query: String, isSearchById: Boolean): Single<BugDetail> =
+        if (isSearchById) {
+            repo.searchBugById(query)
+        } else {
+            repo.searchBugs(query)
+        }
 }

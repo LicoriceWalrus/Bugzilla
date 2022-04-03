@@ -1,16 +1,24 @@
 package com.bugzilla.features.bugs
 
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import com.bugzilla.features.bugs.data.api.BugsApi
 import com.bugzilla.features.bugs.domain.interactor.BugsInteractor
 import com.bugzilla.features.bugs.domain.interactor.BugsInteractorImpl
 import com.bugzilla.features.bugs.domain.repo.BugsRepo
 import com.bugzilla.features.bugs.domain.repo.BugsRepoImpl
 import com.bugzilla.features.bugs.presentations.list.BugListViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 
 val bugsModule = module {
+    single<SharedPreferences> {
+        PreferenceManager.getDefaultSharedPreferences(
+            androidContext()
+        )
+    }
     single<BugsApi> {
         get<Retrofit>()
             .create(BugsApi::class.java)
@@ -21,5 +29,5 @@ val bugsModule = module {
     single<BugsInteractor> {
         BugsInteractorImpl(get())
     }
-    viewModel { BugListViewModel(get()) }
+    viewModel { BugListViewModel(get(), get()) }
 }
