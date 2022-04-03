@@ -2,4 +2,10 @@
     <string name="app_name">Bugzilla</string>
 
     <string name="id_title">ID %s</string>
+    <string name="bug_search_hint">Enter query</string>
+    <string name="creator_title">Creator: </string>
+    <string name="severity_title">Severity:</string>
+    <string name="status_title">Status:</string>
+    <string name="upload_bugs_empty">No bugs found</string>
+
 </resources>

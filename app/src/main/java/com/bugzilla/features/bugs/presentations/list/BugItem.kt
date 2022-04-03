@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bugzilla.R
 import com.bugzilla.features.bugs.domain.entity.Bug
+import com.bugzilla.sources.components.DescriptionText
 
 @Composable
 fun BugItem(
@@ -29,12 +30,13 @@ fun BugItem(
 ) {
     Card(
         modifier = Modifier
+            .padding(bottom = 8.dp)
             .fillMaxWidth()
             .clickable {
                 onItemClick()
             },
-        elevation = 8.dp,
-        shape = RoundedCornerShape(8.dp)
+        elevation = 4.dp,
+        shape = RoundedCornerShape(4.dp)
     ) {
         Column(
             modifier = Modifier.padding(8.dp)
@@ -46,14 +48,16 @@ fun BugItem(
                     modifier = Modifier
                         .padding(end = 4.dp)
                         .weight(1f),
-                    text = bug.alias.uppercase(),
+                    text = stringResource(id = R.string.id_title, bug.id),
                     style = MaterialTheme.typography.subtitle1,
-                    maxLines = 1,
+                    maxLines = if (bug.isMoreInformationMode) Int.MAX_VALUE else 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = stringResource(id = R.string.id_title, bug.id),
-                    style = MaterialTheme.typography.subtitle1
+                    text = bug.alias.uppercase(),
+                    style = MaterialTheme.typography.subtitle1,
+                    maxLines = if (bug.isMoreInformationMode) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             Row {
@@ -63,7 +67,9 @@ fun BugItem(
                         .weight(1f),
                     style = MaterialTheme.typography.caption,
                     text = bug.summary,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    maxLines = if (bug.isMoreInformationMode) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Icon(
                     modifier = Modifier
@@ -75,6 +81,20 @@ fun BugItem(
                     contentDescription = null
                 )
             }
+            if (bug.isMoreInformationMode) {
+                DescriptionText(
+                    title = stringResource(id = R.string.creator_title),
+                    text = bug.creator
+                )
+                DescriptionText(
+                    title = stringResource(id = R.string.severity_title),
+                    text = bug.severity
+                )
+                DescriptionText(
+                    title = stringResource(id = R.string.status_title),
+                    text = bug.status
+                )
+            }
         }
     }
 }
@@ -84,9 +104,13 @@ fun BugItem(
 private fun BugItemPreview() {
     BugItem(
         bug = Bug(
+            isMoreInformationMode = true,
             id = "35",
-            summary = "Краткое описание ошиби",
-            alias = "name"
+            summary = "Descriptions",
+            alias = "name",
+            creator = "Vasiliy from Leningrad",
+            status = "Open",
+            severity = "Hot"
         ),
         onItemClick = {}
     )

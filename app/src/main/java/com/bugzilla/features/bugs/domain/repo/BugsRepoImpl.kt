@@ -9,8 +9,8 @@ import io.reactivex.rxjava3.core.Single
 class BugsRepoImpl(
     private val api: BugsApi
 ) : BugsRepo {
-    override fun getBugDetail(id: Int): Single<BugDetail> =
-        api.getBugDetail(id).map {
+    override fun searchBugs(query: String): Single<BugDetail> =
+        api.searchBugs(query).map {
             it.mapToEntity()
         }
 
@@ -19,7 +19,10 @@ class BugsRepoImpl(
             Bug(
                 id = it.id.toString(),
                 summary = it.summary.orEmpty(),
-                alias = it.alias.orEmpty()
+                alias = it.alias.orEmpty(),
+                creator = it.creator.orEmpty(),
+                severity = it.severity.orEmpty(),
+                status = it.status.orEmpty()
             )
         }.orEmpty()
     )

@@ -29,17 +29,22 @@ class BugListViewModel(
         updateUi()
     }
 
-    private fun getBugInfo(id: Int) {
+    fun onQueryChanged(query: String) {
+        state = state.copy(query = query)
+        updateUi()
+    }
+
+    fun searchBugs() {
         state = state.copy(loading = true)
         updateUi()
-        interactor.getBugDetail(id)
+        interactor.searchBugs(state.query ?: "")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                state = state.copy(bugs = it.bugs, loading = false)
+                state = state.copy(bugs = it.bugs, loading = false, message = null)
                 updateUi()
             }, {
-                state = state.copy(errorMessage = it.message, loading = false)
+                state = state.copy(message = it.message, loading = false, bugs = emptyList())
                 updateUi()
             })
     }
