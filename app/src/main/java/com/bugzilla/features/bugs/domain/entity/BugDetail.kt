@@ -1,17 +1,5 @@
 package com.bugzilla.features.bugs.domain.entity
 
-import java.util.*
-
 data class BugDetail(
     val bugs: List<Bug>
-)
-
-data class Bug(
-    val id: Int,
-    val summary: String,
-    val creationTime: String,
-    val creator: String,
-    val status: String,
-    val severity: String,
-    var isMoreInformationMode: Boolean = false
 )
