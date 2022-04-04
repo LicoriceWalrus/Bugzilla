@@ -34,7 +34,7 @@ val bugsModule = module {
     }
     single { get<AppDatabase>().bugDao() }
     single<BugsRepo> {
-        BugsRepoImpl(get())
+        BugsRepoImpl(get(), get())
     }
     single<BugsInteractor> {
         BugsInteractorImpl(get())

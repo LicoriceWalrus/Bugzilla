@@ -13,4 +13,7 @@ class BugsInteractorImpl(
         } else {
             repo.searchBugs(query)
         }
+
+    override fun getBugsFromBD(): Single<BugDetail> =
+        repo.getBugsFromBD()
 }

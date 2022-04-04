@@ -7,4 +7,6 @@ interface BugsRepo {
     fun searchBugs(query: String): Single<BugDetail>
 
     fun searchBugById(query: String): Single<BugDetail>
+
+    fun getBugsFromBD(): Single<BugDetail>
 }

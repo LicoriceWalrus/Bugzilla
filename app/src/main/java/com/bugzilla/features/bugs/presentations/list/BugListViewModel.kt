@@ -21,6 +21,22 @@ class BugListViewModel(
 
     private val screenState: MutableStateFlow<BugListScreenState> = MutableStateFlow(state)
 
+    init {
+        state = state.copy(loading = true)
+        updateUi()
+        interactor.getBugsFromBD()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                state = state.copy(bugs = it.bugs, loading = false)
+                updateUi()
+            }, {
+                state = state.copy(message = it.message, loading = false, bugs = emptyList())
+                updateUi()
+            })
+
+    }
+
     fun screenState(): StateFlow<BugListScreenState> = screenState
 
     fun changeInfoVisibility(bug: Bug) {
