@@ -2,14 +2,14 @@ package com.bugzilla.features.bugs.presentations.list
 
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bugzilla.features.bugs.domain.entity.Bug
 import com.bugzilla.features.bugs.domain.entity.FilterType
 import com.bugzilla.features.bugs.domain.interactor.BugsInteractor
 import com.bugzilla.searchById
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class BugListViewModel(
     private val interactor: BugsInteractor,
@@ -24,17 +24,17 @@ class BugListViewModel(
     init {
         state = state.copy(loading = true)
         updateUi()
-        interactor.getBugsFromBD()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                state = state.copy(bugs = it.bugs, loading = false)
+        viewModelScope.launch {
+            runCatching {
+                interactor.getBugsFromBD()
+            }.onSuccess {
+                state = state.copy(bugs = it, loading = false)
                 updateUi()
-            }, {
+            }.onFailure {
                 state = state.copy(message = it.message, loading = false, bugs = emptyList())
                 updateUi()
-            })
-
+            }
+        }
     }
 
     fun screenState(): StateFlow<BugListScreenState> = screenState
@@ -69,19 +69,20 @@ class BugListViewModel(
     fun searchBugs() {
         state = state.copy(loading = true)
         updateUi()
-        interactor.searchBugs(
-            query = state.query ?: "",
-            isSearchById = sharedPreferences.searchById
-        )
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                state = state.copy(bugs = it.bugs, loading = false, message = null)
+        viewModelScope.launch {
+            runCatching {
+                interactor.searchBugs(
+                    query = state.query ?: "",
+                    isSearchById = sharedPreferences.searchById
+                )
+            }.onSuccess {
+                state = state.copy(bugs = it, loading = false, message = null)
                 updateUi()
-            }, {
+            }.onFailure {
                 state = state.copy(message = it.message, loading = false, bugs = emptyList())
                 updateUi()
-            })
+            }
+        }
     }
 
     private fun updateUi() {

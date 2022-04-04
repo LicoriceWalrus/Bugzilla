@@ -1,12 +1,11 @@
 package com.bugzilla.features.bugs.domain.repo
 
-import com.bugzilla.features.bugs.domain.entity.BugDetail
-import io.reactivex.rxjava3.core.Single
+import com.bugzilla.features.bugs.domain.entity.Bug
 
 interface BugsRepo {
-    fun searchBugs(query: String): Single<BugDetail>
+    suspend fun searchBugs(query: String): List<Bug>
 
-    fun searchBugById(query: String): Single<BugDetail>
+    suspend fun searchBugById(query: String): List<Bug>
 
-    fun getBugsFromBD(): Single<BugDetail>
+    suspend fun getBugsFromBD(): List<Bug>
 }

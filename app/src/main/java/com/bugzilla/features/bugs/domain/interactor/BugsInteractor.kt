@@ -1,11 +1,10 @@
 package com.bugzilla.features.bugs.domain.interactor
 
-import com.bugzilla.features.bugs.domain.entity.BugDetail
-import io.reactivex.rxjava3.core.Single
+import com.bugzilla.features.bugs.domain.entity.Bug
 
 interface BugsInteractor {
 
-    fun searchBugs(query: String, isSearchById: Boolean): Single<BugDetail>
+    suspend fun searchBugs(query: String, isSearchById: Boolean): List<Bug>
 
-    fun getBugsFromBD(): Single<BugDetail>
+    suspend fun getBugsFromBD(): List<Bug>
 }
