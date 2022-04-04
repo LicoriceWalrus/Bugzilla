@@ -5,7 +5,7 @@ import java.util.*
 
 data class BugDto(
     @SerializedName("id")
-    val id: Int? = null,
+    val id: Int,
     @SerializedName("summary")
     val summary: String? = null,
     @SerializedName("creation_time")

@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-android'
 }
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdk 32
@@ -47,6 +48,7 @@ dependencies {
     def compose_version = "1.1.1"
     def activity_version = "1.4.0"
     def lifecycle_version = "2.4.1"
+    def room_version = "2.4.2"
 
     //activity
     implementation "androidx.activity:activity-compose:$activity_version"
@@ -76,6 +78,11 @@ dependencies {
 
     //preference
     implementation 'androidx.preference:preference-ktx:1.2.0'
+
+    //room
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-rxjava3:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"

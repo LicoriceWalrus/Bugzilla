@@ -105,7 +105,7 @@ private fun BugItemPreview() {
     BugItem(
         bug = Bug(
             isMoreInformationMode = true,
-            id = "35",
+            id = 35,
             summary = "Descriptions",
             creationTime = "1.10.1990",
             creator = "Vasiliy from Leningrad",

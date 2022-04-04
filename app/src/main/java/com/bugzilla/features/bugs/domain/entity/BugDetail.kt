@@ -7,7 +7,7 @@ data class BugDetail(
 )
 
 data class Bug(
-    val id: String,
+    val id: Int,
     val summary: String,
     val creationTime: String,
     val creator: String,

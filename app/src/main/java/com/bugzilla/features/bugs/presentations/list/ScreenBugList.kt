@@ -175,7 +175,7 @@ private fun BugList(
                         ) {
                             val bugs = state.value.bugs.sortedBy { bug ->
                                 when (state.value.filterType) {
-                                    FilterType.ID -> bug.id
+                                    FilterType.ID -> bug.id.toString()
                                     else -> bug.creationTime
                                 }
                             }
@@ -215,7 +215,6 @@ private fun BugList(
                         state.value.query?.let {
                             if (it.isNotBlank()) {
                                 searchBugs()
-                                onQueryChanged("")
                             }
                         }
                     }
@@ -230,7 +229,6 @@ private fun BugList(
                             state.value.query?.let {
                                 if (it.isNotBlank()) {
                                     searchBugs()
-                                    onQueryChanged("")
                                 }
                             }
                         },
@@ -269,7 +267,7 @@ private fun BugListPreview() {
             initial = BugListScreenState(
                 bugs = listOf(
                     Bug(
-                        id = "65",
+                        id = 65,
                         summary = "Краткое описание",
                         creationTime = "1.10.1990",
                         creator = "Vasiliy from Leningrad",
