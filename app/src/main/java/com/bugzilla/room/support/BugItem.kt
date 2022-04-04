@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Bugs(
+data class BugItem(
     @PrimaryKey val bugId: Int,
     @ColumnInfo(name = "summary") val summary: String?,
     @ColumnInfo(name = "creationTime") val creationTime: String?,

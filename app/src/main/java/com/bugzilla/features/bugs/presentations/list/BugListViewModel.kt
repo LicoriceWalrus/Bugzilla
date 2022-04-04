@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import com.bugzilla.features.bugs.domain.entity.Bug
 import com.bugzilla.features.bugs.domain.entity.FilterType
 import com.bugzilla.features.bugs.domain.interactor.BugsInteractor
-import com.bugzilla.room.support.BugDao
 import com.bugzilla.searchById
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -14,32 +13,13 @@ import kotlinx.coroutines.flow.StateFlow
 
 class BugListViewModel(
     private val interactor: BugsInteractor,
-    private val sharedPreferences: SharedPreferences,
-    dao: BugDao
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
     private var state: BugListScreenState =
         BugListScreenState(isSearchById = sharedPreferences.searchById)
 
     private val screenState: MutableStateFlow<BugListScreenState> = MutableStateFlow(state)
-
-    init {
-        state = state.copy(loading = true)
-        updateUi()
-        dao.getAll()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ bugs ->
-                state = state.copy(loading = false, bugs = bugs.map {
-                    it.mapToEntity()
-                })
-                updateUi()
-            }, {
-                state = state.copy(loading = false)
-                updateUi()
-                throw Exception(it.message)
-            })
-    }
 
     fun screenState(): StateFlow<BugListScreenState> = screenState
 
@@ -91,16 +71,5 @@ class BugListViewModel(
     private fun updateUi() {
         screenState.tryEmit(state)
     }
-
-    private fun com.bugzilla.room.support.Bugs.mapToEntity(): Bug =
-        Bug(
-            id = this.bugId,
-            summary = this.summary.orEmpty(),
-            creationTime = this.creationTime.orEmpty(),
-            creator = this.creator.orEmpty(),
-            status = this.status.orEmpty(),
-            severity = this.severity.orEmpty(),
-        )
-
 
 }

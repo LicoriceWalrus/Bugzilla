@@ -4,29 +4,24 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface BugDao {
-    @Query("SELECT * FROM bugs")
-    fun getAll(): Single<List<Bugs>>
+    @Query("SELECT * FROM bugItem")
+    fun getAll(): List<BugItem>
 
-    @Query("SELECT * FROM bugs WHERE bugId IN (:bugIds)")
-    fun loadAllByIds(bugIds: IntArray): List<Bugs>
+    @Query("SELECT * FROM bugItem WHERE bugId IN (:bugIds)")
+    fun loadAllByIds(bugIds: IntArray): List<BugItem>
 
     @Insert
-    fun insertAll(vararg bugs: Bugs)
+    fun insertAll(vararg bugs: BugItem)
 
     @Delete
-    fun delete(bug: List<Bugs>)
+    fun delete(bug: BugItem)
 
     fun deleteAll() {
-        getAll()
-            .subscribe({
+        getAll().map {
             delete(it)
-        }, {
-            throw Exception(it.message)
-        })
-
+        }
     }
 }

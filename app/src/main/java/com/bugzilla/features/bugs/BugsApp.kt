@@ -34,10 +34,10 @@ val bugsModule = module {
     }
     single { get<AppDatabase>().bugDao() }
     single<BugsRepo> {
-        BugsRepoImpl(get(), get())
+        BugsRepoImpl(get())
     }
     single<BugsInteractor> {
         BugsInteractorImpl(get())
     }
-    viewModel { BugListViewModel(get(), get(), get()) }
+    viewModel { BugListViewModel(get(), get()) }
 }
