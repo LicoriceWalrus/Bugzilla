@@ -1,5 +1,7 @@
 package com.bugzilla.sources.components
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
@@ -13,15 +15,18 @@ import com.bugzilla.R
 
 @Composable
 fun BugToolbar(
-    content: @Composable () -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth(),
         color = Color.White,
-        elevation = 8.dp,
-        content = content
-    )
+        elevation = 8.dp
+    ) {
+        Row {
+            content()
+        }
+    }
 }
 
 @Composable
