@@ -51,7 +51,7 @@ private fun BugList(
     state: State<BugListScreenState>,
     onBugClick: (Bug) -> Unit,
     onQueryChanged: (String) -> Unit,
-    searchBugs: () -> Unit,
+    searchBugs: (String) -> Unit,
     filterTypeChanged: (FilterType) -> Unit,
     changeSearchMethod: () -> Unit,
     refresh: () -> Unit,
@@ -85,8 +85,7 @@ private fun BugList(
                                         id = if (state.value.isSearchById)
                                             R.string.bug_search_by_id_hint
                                         else R.string.bug_search_hint
-                                    ),
-                                    style = MaterialTheme.typography.button
+                                    )
                                 )
                             },
                             colors = TextFieldDefaults.textFieldColors(
@@ -95,7 +94,7 @@ private fun BugList(
                             keyboardActions = KeyboardActions(
                                 onDone = {
                                     focusManager.clearFocus()
-                                    searchBugs()
+                                    searchBugs(state.value.query ?: "")
                                 }
                             ),
                             keyboardOptions = KeyboardOptions(
@@ -107,7 +106,7 @@ private fun BugList(
                             modifier = Modifier.align(CenterVertically)
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_filter),
+                                painter = painterResource(id = R.drawable.ic_settings),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .padding(end = 8.dp)

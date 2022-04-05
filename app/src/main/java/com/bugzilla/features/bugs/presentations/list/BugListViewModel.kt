@@ -81,9 +81,9 @@ class BugListViewModel(
     }
 
     fun refresh() {
-        state.query?.let {
+        state.lastQuery?.let {
             if (it.isNotBlank()) {
-                searchBugs(true)
+                searchBugs(it, true)
             }
         }
     }
@@ -95,16 +95,17 @@ class BugListViewModel(
         }
     }
 
-    fun searchBugs(isRefresh: Boolean = false) {
-        if (state.query.isNullOrBlank()) {
+    fun searchBugs(query: String, isRefresh: Boolean = false) {
+        if (query.isBlank()) {
             openEmptyQueryDialog(true)
         } else {
             viewModelScope.launch {
-                state = state.copy(loading = !isRefresh, isRefreshing = isRefresh)
+                state =
+                    state.copy(loading = !isRefresh, isRefreshing = isRefresh, lastQuery = query)
                 updateUi()
                 runCatching {
                     interactor.searchBugs(
-                        query = state.query ?: "",
+                        query = query,
                         isSearchById = sharedPreferences.searchById
                     )
                 }.onSuccess {
