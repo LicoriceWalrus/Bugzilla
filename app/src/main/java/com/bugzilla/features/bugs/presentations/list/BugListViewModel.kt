@@ -22,16 +22,22 @@ class BugListViewModel(
     private val screenState: MutableStateFlow<BugListScreenState> = MutableStateFlow(state)
 
     init {
-        state = state.copy(loading = true)
-        updateUi()
         viewModelScope.launch {
+            state = state.copy(loading = true)
+            updateUi()
             runCatching {
                 interactor.getBugsFromBD()
             }.onSuccess {
-                state = state.copy(bugs = it, loading = false)
+                state = state.copy(
+                    bugs = it,
+                    loading = false
+                )
                 updateUi()
             }.onFailure {
-                state = state.copy(message = it.message, loading = false, bugs = emptyList())
+                state = state.copy(
+                    bugs = emptyList(),
+                    loading = false
+                )
                 updateUi()
             }
         }
@@ -40,53 +46,80 @@ class BugListViewModel(
     fun screenState(): StateFlow<BugListScreenState> = screenState
 
     fun changeInfoVisibility(bug: Bug) {
-        state = state.copy(bugs = state.bugs.map {
-            if (it.id == bug.id) {
-                it.copy(isMoreInformationMode = it.isMoreInformationMode.not())
-            } else {
-                it
-            }
-        })
-        updateUi()
+        viewModelScope.launch {
+            state = state.copy(bugs = state.bugs.map {
+                if (it.id == bug.id) {
+                    it.copy(isMoreInformationMode = it.isMoreInformationMode.not())
+                } else {
+                    it
+                }
+            })
+            updateUi()
+        }
     }
 
     fun onQueryChanged(query: String) {
-        state = state.copy(query = query)
-        updateUi()
+        viewModelScope.launch {
+            state = state.copy(query = query)
+            updateUi()
+        }
+    }
+
+    fun openEmptyQueryDialog(value: Boolean) {
+        viewModelScope.launch {
+            state = state.copy(emptyQueryDialog = value, query = "")
+            updateUi()
+        }
     }
 
     fun changeSearchMethod() {
-        sharedPreferences.searchById = sharedPreferences.searchById.not()
-        state = state.copy(isSearchById = sharedPreferences.searchById)
-        updateUi()
-    }
-
-    fun filterTypeChanged(type: FilterType) {
-        state = state.copy(filterType = type)
-        updateUi()
-    }
-
-    fun searchBugs() {
-        state = state.copy(loading = true)
-        updateUi()
         viewModelScope.launch {
-            runCatching {
-                interactor.searchBugs(
-                    query = state.query ?: "",
-                    isSearchById = sharedPreferences.searchById
-                )
-            }.onSuccess {
-                state = state.copy(bugs = it, loading = false, message = null)
-                updateUi()
-            }.onFailure {
-                state = state.copy(message = it.message, loading = false, bugs = emptyList())
-                updateUi()
+            sharedPreferences.searchById = sharedPreferences.searchById.not()
+            state = state.copy(isSearchById = sharedPreferences.searchById)
+            updateUi()
+        }
+    }
+
+    fun refresh() {
+        state.query?.let {
+            if (it.isNotBlank()) {
+                searchBugs(true)
             }
         }
     }
 
-    private fun updateUi() {
-        screenState.tryEmit(state)
+    fun filterTypeChanged(type: FilterType) {
+        viewModelScope.launch {
+            state = state.copy(filterType = type)
+            updateUi()
+        }
+    }
+
+    fun searchBugs(isRefresh: Boolean = false) {
+        if (state.query.isNullOrBlank()) {
+            openEmptyQueryDialog(true)
+        } else {
+            viewModelScope.launch {
+                state = state.copy(loading = !isRefresh, isRefreshing = isRefresh)
+                updateUi()
+                runCatching {
+                    interactor.searchBugs(
+                        query = state.query ?: "",
+                        isSearchById = sharedPreferences.searchById
+                    )
+                }.onSuccess {
+                    state = state.copy(bugs = it, loading = false, isRefreshing = false)
+                    updateUi()
+                }.onFailure {
+                    state = state.copy(loading = false, bugs = emptyList(), isRefreshing = false)
+                    updateUi()
+                }
+            }
+        }
+    }
+
+    private suspend fun updateUi() {
+        screenState.emit(state)
     }
 
 }

@@ -78,6 +78,9 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
+    //accompanist
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.24.5-alpha"
+
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation 'androidx.core:core-ktx:1.7.0'

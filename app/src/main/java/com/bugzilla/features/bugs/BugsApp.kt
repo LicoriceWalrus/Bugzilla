@@ -17,27 +17,34 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 
 val bugsModule = module {
-    single<SharedPreferences> {
+    factory<SharedPreferences> {
         PreferenceManager.getDefaultSharedPreferences(
             androidContext()
         )
     }
+
     single<BugsApi> {
         get<Retrofit>()
             .create(BugsApi::class.java)
     }
+
     single {
         Room.databaseBuilder(
             androidApplication(),
             AppDatabase::class.java, "database"
         ).build()
     }
+
     single { get<AppDatabase>().bugDao() }
-    single<BugsRepo> {
+
+    factory<BugsRepo> {
         BugsRepoImpl(get(), get())
     }
-    single<BugsInteractor> {
+
+    factory<BugsInteractor> {
         BugsInteractorImpl(get())
     }
+
     viewModel { BugListViewModel(get(), get()) }
+
 }

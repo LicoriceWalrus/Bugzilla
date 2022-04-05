@@ -9,5 +9,6 @@ data class BugListScreenState(
     val bugs: List<Bug> = emptyList(),
     val filterType: FilterType = FilterType.ID,
     val isSearchById: Boolean,
-    val message: String? = ""
+    val isRefreshing: Boolean = false,
+    val emptyQueryDialog: Boolean = false
 )

@@ -82,20 +82,27 @@ fun BugItem(
                 )
             }
             if (bug.isMoreInformationMode) {
-                DescriptionText(
-                    title = stringResource(id = R.string.creator_title),
-                    text = bug.creator
-                )
-                DescriptionText(
-                    title = stringResource(id = R.string.severity_title),
-                    text = bug.severity
-                )
-                DescriptionText(
-                    title = stringResource(id = R.string.status_title),
-                    text = bug.status
-                )
+                MoreBugInformation(bug = bug)
             }
         }
+    }
+}
+
+@Composable
+fun MoreBugInformation(bug: Bug) {
+    Column {
+        DescriptionText(
+            title = stringResource(id = R.string.creator_title),
+            text = bug.creator
+        )
+        DescriptionText(
+            title = stringResource(id = R.string.severity_title),
+            text = bug.severity
+        )
+        DescriptionText(
+            title = stringResource(id = R.string.status_title),
+            text = bug.status
+        )
     }
 }
 

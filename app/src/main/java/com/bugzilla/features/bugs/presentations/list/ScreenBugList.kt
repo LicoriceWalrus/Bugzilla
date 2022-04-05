@@ -24,6 +24,8 @@ import com.bugzilla.features.bugs.domain.entity.Bug
 import com.bugzilla.features.bugs.domain.entity.FilterType
 import com.bugzilla.sources.components.BugToolbar
 import com.bugzilla.sources.components.LoadingBox
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.flow.flowOf
 import org.koin.androidx.compose.getViewModel
 
@@ -37,7 +39,9 @@ fun ScreenBugList(
         onQueryChanged = vm::onQueryChanged,
         searchBugs = vm::searchBugs,
         filterTypeChanged = vm::filterTypeChanged,
-        changeSearchMethod = vm::changeSearchMethod
+        changeSearchMethod = vm::changeSearchMethod,
+        refresh = vm::refresh,
+        openEmptyQueryDialog = vm::openEmptyQueryDialog
     )
 }
 
@@ -48,7 +52,9 @@ private fun BugList(
     onQueryChanged: (String) -> Unit,
     searchBugs: () -> Unit,
     filterTypeChanged: (FilterType) -> Unit,
-    changeSearchMethod: () -> Unit
+    changeSearchMethod: () -> Unit,
+    refresh: () -> Unit,
+    openEmptyQueryDialog: (Boolean) -> Unit
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -82,12 +88,12 @@ private fun BugList(
                                 .fillMaxWidth()
                                 .clickable {
                                     changeSearchMethod()
-                                },
-                            horizontalArrangement = Arrangement.End
+                                }
                         ) {
                             Text(
                                 modifier = Modifier
-                                    .align(CenterVertically),
+                                    .align(CenterVertically)
+                                    .weight(1f),
                                 text = stringResource(id = R.string.search_by_id)
                             )
                             Checkbox(
@@ -111,10 +117,10 @@ private fun BugList(
                                     filterTypeChanged(FilterType.ID)
                                     expanded = !expanded
                                 },
-                            horizontalArrangement = Arrangement.End
                         ) {
                             Text(
                                 modifier = Modifier
+                                    .weight(1f)
                                     .align(CenterVertically),
                                 text = stringResource(id = R.string.by_id_filter)
 
@@ -132,12 +138,12 @@ private fun BugList(
                                 .clickable {
                                     filterTypeChanged(FilterType.DATE)
                                     expanded = !expanded
-                                },
-                            horizontalArrangement = Arrangement.End
+                                }
                         ) {
                             Text(
                                 text = stringResource(id = R.string.by_date_filter),
                                 modifier = Modifier
+                                    .weight(1f)
                                     .padding(start = 12.dp)
                                     .align(CenterVertically)
                             )
@@ -164,13 +170,18 @@ private fun BugList(
                                 .fillMaxWidth()
                                 .padding(30.dp)
                                 .align(Alignment.Center),
-                            text = state.value.message
-                                ?: stringResource(id = R.string.upload_bugs_empty),
+                            text = stringResource(id = R.string.upload_bugs_empty),
                             color = Color.Gray,
                             textAlign = TextAlign.Center
                         )
-                    } else {
+                    }
+                    SwipeRefresh(
+                        state = rememberSwipeRefreshState(state.value.isRefreshing),
+                        onRefresh = { refresh() }
+                    ) {
                         LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize(),
                             contentPadding = PaddingValues(top = 8.dp)
                         ) {
                             val bugs = state.value.bugs.sortedBy { bug ->
@@ -212,11 +223,7 @@ private fun BugList(
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        state.value.query?.let {
-                            if (it.isNotBlank()) {
-                                searchBugs()
-                            }
-                        }
+                        searchBugs()
                     }
                 ),
                 keyboardOptions = KeyboardOptions(
@@ -226,11 +233,7 @@ private fun BugList(
                 trailingIcon = {
                     Icon(
                         modifier = Modifier.clickable {
-                            state.value.query?.let {
-                                if (it.isNotBlank()) {
-                                    searchBugs()
-                                }
-                            }
+                            searchBugs()
                         },
                         painter = painterResource(id = R.drawable.ic_search),
                         contentDescription = null
@@ -238,6 +241,24 @@ private fun BugList(
                 }
             )
         }
+    }
+    if (state.value.emptyQueryDialog) {
+        AlertDialog(
+            title = {
+                Text(text = stringResource(id = R.string.attention))
+            },
+            text = {
+                Text(text = stringResource(id = R.string.bad_query_error_message))
+            },
+            onDismissRequest = {
+                // Nothing
+            },
+            confirmButton = {
+                Button(onClick = { openEmptyQueryDialog(false) }) {
+                    Text(text = stringResource(id = R.string.ok))
+                }
+            }
+        )
     }
 }
 
@@ -255,7 +276,9 @@ private fun EmptyBugListPreview() {
         onQueryChanged = {},
         searchBugs = {},
         filterTypeChanged = {},
-        changeSearchMethod = {}
+        changeSearchMethod = {},
+        refresh = {},
+        openEmptyQueryDialog = {}
     )
 }
 
@@ -282,6 +305,8 @@ private fun BugListPreview() {
         onQueryChanged = {},
         searchBugs = {},
         filterTypeChanged = {},
-        changeSearchMethod = {}
+        changeSearchMethod = {},
+        refresh = {},
+        openEmptyQueryDialog = {}
     )
 }

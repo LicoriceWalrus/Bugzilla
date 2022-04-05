@@ -7,6 +7,9 @@
     <string name="bug_search_by_id_hint">Enter bug ID</string>
     <string name="creator_title">Creator: </string>
     <string name="severity_title">Severity:</string>
+    <string name="attention">Attention</string>
+    <string name="bad_query_error_message">Query must not be empty</string>
+    <string name="ok">OK</string>
     <string name="status_title">Status:</string>
     <string name="upload_bugs_empty">No bugs found</string>
     <string name="search_by_id">Search by ID</string>

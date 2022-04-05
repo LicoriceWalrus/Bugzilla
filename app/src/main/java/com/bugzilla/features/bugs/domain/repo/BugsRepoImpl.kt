@@ -14,19 +14,19 @@ class BugsRepoImpl(
     private val dao: BugDao
 ) : BugsRepo {
     override suspend fun searchBugs(query: String): List<Bug> {
-        dao.deleteAll()
+        dao.delete()
         val resp = api.searchBugs(query).getOrThrow()
-        resp.bugs?.map {
-            dao.insertAll(it.mapToDao())
-        }
         return resp.bugs?.map {
+            dao.insertAll(it.mapToDao())
             it.mapToEntity()
         } ?: emptyList()
     }
 
     override suspend fun searchBugById(query: String): List<Bug> {
+        dao.delete()
         val resp = api.searchBugById(query).getOrThrow()
         return resp.bugs?.map {
+            dao.insertAll(it.mapToDao())
             it.mapToEntity()
         } ?: emptyList()
     }
@@ -50,7 +50,7 @@ class BugsRepoImpl(
         summary = this.summary.orEmpty(),
         creationTime = this.creationTime?.let { date ->
             SimpleDateFormat(
-                "yyyy-MM-dd",
+                DATE_WITHOUT_TIME,
                 Locale.getDefault()
             ).format(date).toString()
         } ?: "",
@@ -64,7 +64,7 @@ class BugsRepoImpl(
         summary = this.summary.orEmpty(),
         creationTime = this.creationTime?.let { date ->
             SimpleDateFormat(
-                "yyyy-MM-dd",
+                DATE_WITHOUT_TIME,
                 Locale.getDefault()
             ).format(date).toString()
         } ?: "",
@@ -72,4 +72,8 @@ class BugsRepoImpl(
         severity = this.severity.orEmpty(),
         status = this.status.orEmpty()
     )
+
+    companion object {
+        private const val DATE_WITHOUT_TIME = "yyyy-MM-dd"
+    }
 }
