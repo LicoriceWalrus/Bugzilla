@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -59,6 +60,7 @@ private fun BugList(
     var expanded by remember {
         mutableStateOf(false)
     }
+    val focusManager = LocalFocusManager.current
     LoadingBox(
         modifier = Modifier
             .fillMaxSize()
@@ -67,92 +69,129 @@ private fun BugList(
     ) {
         Column {
             BugToolbar(
-                title = stringResource(id = R.string.search_bugs_toolbar_title),
-                actions = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_filter),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .clickable {
-                                expanded = !expanded
-                            }
-                    )
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                    ) {
-                        Row(
+                content = {
+                    Row {
+                        TextField(
+                            singleLine = true,
                             modifier = Modifier
-                                .padding(start = 12.dp)
-                                .fillMaxWidth()
-                                .clickable {
-                                    changeSearchMethod()
+                                .padding(start = 8.dp, bottom = 8.dp, end = 8.dp)
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            value = state.value.query ?: "",
+                            onValueChange = onQueryChanged,
+                            label = {
+                                Text(
+                                    text = stringResource(
+                                        id = if (state.value.isSearchById)
+                                            R.string.bug_search_by_id_hint
+                                        else R.string.bug_search_hint
+                                    ),
+                                    style = MaterialTheme.typography.button
+                                )
+                            },
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = Color.Transparent
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus()
+                                    searchBugs()
                                 }
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .align(CenterVertically)
-                                    .weight(1f),
-                                text = stringResource(id = R.string.search_by_id)
-                            )
-                            Checkbox(
-                                checked = state.value.isSearchById,
-                                onCheckedChange = {
-                                    changeSearchMethod()
-                                })
-                        }
-                        Divider(
-                            color = Color.LightGray,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 24.dp, top = 8.dp, end = 8.dp),
-                            thickness = 1.dp
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = if (state.value.isSearchById) KeyboardType.Number else KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
                         )
-                        Row(
-                            modifier = Modifier
-                                .padding(start = 12.dp)
-                                .fillMaxWidth()
-                                .clickable {
-                                    filterTypeChanged(FilterType.ID)
-                                    expanded = !expanded
-                                },
+                        Box(
+                            modifier = Modifier.align(CenterVertically)
                         ) {
-                            Text(
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_filter),
+                                contentDescription = null,
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .align(CenterVertically),
-                                text = stringResource(id = R.string.by_id_filter)
-
+                                    .padding(end = 8.dp)
+                                    .clickable {
+                                        expanded = !expanded
+                                    }
                             )
-                            RadioButton(
-                                selected = state.value.filterType == FilterType.ID,
-                                onClick = {
-                                    filterTypeChanged(FilterType.ID)
-                                    expanded = !expanded
-                                })
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    filterTypeChanged(FilterType.DATE)
-                                    expanded = !expanded
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(start = 12.dp)
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            changeSearchMethod()
+                                        }
+                                ) {
+                                    Text(
+                                        modifier = Modifier
+                                            .align(CenterVertically)
+                                            .weight(1f),
+                                        text = stringResource(id = R.string.search_by_id)
+                                    )
+                                    Checkbox(
+                                        checked = state.value.isSearchById,
+                                        onCheckedChange = {
+                                            changeSearchMethod()
+                                        })
                                 }
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.by_date_filter),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 12.dp)
-                                    .align(CenterVertically)
-                            )
-                            RadioButton(
-                                selected = state.value.filterType == FilterType.DATE,
-                                onClick = {
-                                    filterTypeChanged(FilterType.DATE)
-                                    expanded = !expanded
-                                })
+                                Divider(
+                                    color = Color.LightGray,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 24.dp, top = 8.dp, end = 8.dp),
+                                    thickness = 1.dp
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .padding(start = 12.dp)
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            filterTypeChanged(FilterType.ID)
+                                            expanded = !expanded
+                                        },
+                                ) {
+                                    Text(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .align(CenterVertically),
+                                        text = stringResource(id = R.string.by_id_filter)
+
+                                    )
+                                    RadioButton(
+                                        selected = state.value.filterType == FilterType.ID,
+                                        onClick = {
+                                            filterTypeChanged(FilterType.ID)
+                                            expanded = !expanded
+                                        })
+                                }
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            filterTypeChanged(FilterType.DATE)
+                                            expanded = !expanded
+                                        }
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.by_date_filter),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(start = 12.dp)
+                                            .align(CenterVertically)
+                                    )
+                                    RadioButton(
+                                        selected = state.value.filterType == FilterType.DATE,
+                                        onClick = {
+                                            filterTypeChanged(FilterType.DATE)
+                                            expanded = !expanded
+                                        })
+                                }
+                            }
                         }
                     }
                 }
@@ -202,44 +241,6 @@ private fun BugList(
                     }
                 }
             }
-            TextField(
-                singleLine = true,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                value = state.value.query ?: "",
-                onValueChange = onQueryChanged,
-                label = {
-                    Text(
-                        text = stringResource(
-                            id = if (state.value.isSearchById)
-                                R.string.bug_search_by_id_hint
-                            else R.string.bug_search_hint
-                        )
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Transparent
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        searchBugs()
-                    }
-                ),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = if (state.value.isSearchById) KeyboardType.Number else KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-                trailingIcon = {
-                    Icon(
-                        modifier = Modifier.clickable {
-                            searchBugs()
-                        },
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = null
-                    )
-                }
-            )
         }
     }
     if (state.value.emptyQueryDialog) {
